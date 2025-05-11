@@ -1,0 +1,182 @@
+/* Smooth slide-up animation on page load */
+body {
+    background-color: #efe9ce;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    color: #6b4f3f;
+    margin: 0;
+    padding: 20px;
+    animation: pullUp 0.5s ease-in-out forwards;
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* Centered container */
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.5s ease-out;
+}
+
+/* Slide-up animation */
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Slide-down exit animation */
+@keyframes slideDown {
+    to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+/* Exit animation class */
+.slide-down-exit .container {
+    animation: slideDown 0.5s ease-in-out forwards;
+}
+
+.slide-down-exit {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+/* Rest of your existing styles remain unchanged */
+.title {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.order-summary,
+.payment-methods {
+    margin-bottom: 20px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    background-color: #5a4033;
+    color: white;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+
+#total-price {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.payment-methods label {
+    display: block;
+    margin: 10px 0;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+#confirm-payment,
+#add-more {
+    background-color: #6b4f3f;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#confirm-payment:hover,
+#add-more:hover {
+    background-color: #5a4033;
+}
+
+
+.order-type-banner {
+    background-color: #42A5F5;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+.payment-methods p {
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+        margin: 0 15px;
+    }
+    
+    .button-group {
+        flex-direction: column;
+    }
+    
+    #confirm-payment,
+    #add-more {
+        width: 100%;
+    }
+}
+
+/* Pull-up exit animation */
+.pull-up-exit {
+    animation: slideUpExit 0.5s ease-in-out forwards;
+}
+
+@keyframes slideUpExit {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+/* Pull-down exit animation */
+.pull-down-exit {
+    animation: slideDownExit 0.5s ease-in-out forwards;
+}
+
+@keyframes slideDownExit {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}

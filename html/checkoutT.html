@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Script & Sip</title>
+    <link rel="stylesheet" href="../css/checkoutT.css">
+   
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Takeout Checkout</h1>
+            <div class="order-type-banner">
+                🛍️ Takeout Order
+            </div>
+        </header>
+        
+        <div class="order-summary">
+            <h2>Your Order</h2>
+            <ul id="order-list"></ul>
+            <div class="total-display">
+                <span>Total:</span>
+                <span id="total-price">₱0.00</span>
+            </div>
+        </div>
+        
+        <div class="payment-methods">
+            <h2>Payment Method</h2>
+            <p><strong>Cash</strong> (Automatically Selected)</p>
+        </div>
+        
+        <div class="button-group">
+            <button id="confirm-payment" class="btn-confirm">Confirm Takeout Order</button>
+            <button id="add-more" class="btn-secondary">Add More Items</button>
+        </div>
+    </div>
+
+    <script src="../js/checkoutT.js"></script>
+    <!-- Removed orderUtils.js since we're including saveOrder in checkoutT.js -->
+</body>
+</html>

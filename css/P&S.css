@@ -1,0 +1,166 @@
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header Styles */
+header {
+    background-color: #8b6b56;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+    position: relative;
+}
+
+.logo {
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+.title {
+    font-size: 28px;
+    font-weight: 500;
+    display: inline-block;
+    vertical-align: middle;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.5px;
+}
+
+/* Container Layout */
+.container {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 90px); /* Adjust based on header height */
+}
+
+/* Section Styles */
+.section {
+    flex: 1;
+    padding: 20px;
+    position: relative; 
+}
+
+.preparing-section {
+    background-color: #fff8e8; /* Creamy color from image */
+    border-right: 1px dashed #cccccc;
+}
+
+.serving-section {
+    background-color: #e8f5f0; /* Light mint color from image */
+}
+
+.section-title {
+    text-align: center;
+    color: #8b6b56;
+    font-size: 22px;
+    margin-bottom: 20px;
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+/* Decorative line under section titles */
+.section-title::after {
+    content: "";
+    display: block;
+    width: 90%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #d4b28c, transparent);
+    position: absolute;
+    bottom: -10px;
+    left: 5%;
+}
+
+/* Diamond decoration on line */
+.section-title::before {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 10px;
+    background-color: #d4b28c;
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    z-index: 1;
+}
+
+/* Orders Container Styles */
+#preparingOrdersContainer, #servingOrdersContainer {
+    margin-top: 40px;
+    min-height: 300px;
+}
+
+/* Priority Numbers Grid */
+.priority-numbers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 20px;
+    justify-content: center;
+    padding: 10px;
+}
+
+.priority-number-item {
+    background-color: white;
+    aspect-ratio: 1/1;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.priority-number-item.preparing {
+    color: #ff9800;
+    border: 3px solid #ff9800;
+}
+
+.priority-number-item.serving {
+    color: #4caf50;
+    border: 3px solid #4caf50;
+}
+
+.no-orders {
+    text-align: center;
+    color: #999;
+    padding: 30px 0;
+    font-style: italic;
+    font-size: 18px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    
+    .preparing-section {
+        border-right: none;
+        border-bottom: 2px dashed #cccccc;
+    }
+    
+    .priority-numbers-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+    
+    .priority-number-item {
+        font-size: 26px;
+    }
+}

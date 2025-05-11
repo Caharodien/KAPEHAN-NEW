@@ -1,0 +1,385 @@
+body {
+    background-color: #efe9ce;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    color: #ffffff;
+    animation: slideInRight 0.5s ease-in-out forwards;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 20px;
+    padding: 20px;
+}
+
+.menu-container {
+    flex: 3;
+}
+
+.order-container {
+    flex: 1;
+    min-width: 300px;
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+}
+
+.start-btn {
+    background-color: #6b4f3f;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    float: right;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.start-btn:hover {
+    background-color: #5a4033;
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.tab {
+    background-color: #3c2a22;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.3s;
+    font-weight: bold;
+}
+
+.tab:hover {
+    background-color: #4d382b;
+}
+
+.active {
+    background-color: #5a4033;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.order-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    grid-template-rows: repeat(4, auto); /* 4 rows */
+    gap: 15px;
+    background-color: #3c2a22;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.item {
+    background-color: #5a4033;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.item img {
+    width: 110px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    border: 2px solid #3c2a22;
+}
+
+.item p {
+    margin: 4px 0;
+    font-weight: bold;
+    font-size: 14px;
+    color: #fff;
+}
+
+.item .description {
+    font-size: 11px;
+    color: #d3c6a6;
+    margin-top: 3px;
+    line-height: 1.3;
+    font-style: italic;
+}
+
+.order-list {
+    background-color: #3c2a22;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.order-list h2 {
+    color: #ffffff;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 20px;
+    text-align: left;
+}
+
+#order-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#order-items li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #5a3e36;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: white;
+    font-size: 15px;
+    width: 100%;
+    transition: background-color 0.3s;
+    box-sizing: border-box;
+}
+
+#order-items li:hover {
+    background-color: #6b4f3f;
+}
+
+.remove-btn {
+    background: #3c2a22;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.remove-btn:hover {
+    background: #2c1a12;
+}
+
+.checkout {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background-color: #5a4033;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.total {
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: left;
+}
+
+#proceed-checkout {
+    background-color: #3c2a22;
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    width: 100%;
+}
+
+#proceed-checkout:hover {
+    background-color: #2c1a12;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #3c2a22;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    text-align: center;
+    color: white;
+}
+
+.modal-content p {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.yes-btn, .no-btn {
+    padding: 8px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+    margin: 0 10px;
+    transition: all 0.3s;
+}
+
+.yes-btn {
+    background-color: #6b8e23;
+    color: white;
+}
+
+.yes-btn:hover {
+    background-color: #7a9e2b;
+}
+
+.no-btn {
+    background-color: #a52a2a;
+    color: white;
+}
+
+.no-btn:hover {
+    background-color: #b43a3a;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #3c2a22;
+    padding: 15px 20px;
+    color: #ffffff;
+}
+
+.logo {
+    height: 80px;
+}
+
+.dine-in-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+    margin: 0 auto;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -55%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes slideRight {
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+@keyframes slideUpExit {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-30px) scale(0.98);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(-100%) scale(0.95);
+        opacity: 0;
+    }
+}
+
+.page-exit {
+    animation: slideUpExit 0.5s ease-out forwards;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+    .container {
+        flex-direction: column;
+    }
+    
+    .order-container {
+        position: static;
+    }
+}
+
+@media (max-width: 480px) {
+    .order-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+    
+    .item {
+        flex-direction: row;
+        text-align: left;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .item img {
+        width: 80px;
+        height: 100px;
+    }
+    
+    .item-content {
+        text-align: left;
+    }
+    
+    .header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .start-btn {
+        float: none;
+        margin-top: 10px;
+    }
+}

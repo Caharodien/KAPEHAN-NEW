@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Receipt - Script & Sip</title>
+    <link rel="stylesheet" href="../css/receipt.css">
+</head>
+<body>
+    <div class="receipt-container">
+        <header class="receipt-header">
+            <img src="../images/logo3.0.png" alt="Kapehan Logo" class="logo">
+            <h1>Script & Sip</h1>
+            <p class="subtitle">Coffee Shop Receipt</p>
+        </header>
+        
+        <div class="order-meta">
+            <div class="meta-item">
+                <span class="meta-label">Order #</span>
+                <span id="order-id" class="meta-value">-</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Priority #</span>
+                <span id="priority-number" class="meta-value">-</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Date</span>
+                <span id="order-date" class="meta-value">-</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Time</span>
+                <span id="order-time" class="meta-value">-</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Type</span>
+                <span id="order-type" class="meta-value">-</span>
+            </div>
+        </div>
+        
+        <div class="order-summary">
+            <h2>Your Order</h2>
+            <ul id="order-list"></ul>
+            
+            <div class="total-section">
+                <div class="total-row">
+                    <span>Subtotal</span>
+                    <span id="subtotal-price">₱0.00</span>
+                </div>
+                <div class="total-row">
+                    <span>Service Charge</span>
+                    <span>₱0.00</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Total</span>
+                    <span id="total-price">₱0.00</span>
+                </div>
+            </div>
+            
+            <div class="payment-method">
+                <span>Payment Method:</span>
+                <span id="payment-method">Cash</span>
+            </div>
+        </div>
+        
+        <footer class="receipt-footer">
+            <p class="thank-you">Thank you for your order!</p>
+            <p class="return-time" id="ready-time">Please return in 10 minutes</p>
+            <div class="action-buttons">
+                <button id="new-order" class="btn-primary">Start New Order</button>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../js/receipt.js"></script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+/* Base Styles - with animations */
+body {
+    background-color: #efe9ce;
+    font-family: 'Arial', sans-serif;
+    color: #5a4033;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    animation: slideInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Receipt Container - with exit animation class */
+.receipt-container {
+    width: 100%;
+    max-width: 380px;
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation Definitions */
+@keyframes slideInUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.95);
+        opacity: 1;
+    }
+    to {
+        transform: scale(1.1);
+        opacity: 0;
+    }
+}
+
+/* Exit animation class */
+.receipt-exit .receipt-container {
+    animation: zoomIn 0.4s ease-out forwards;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+        align-items: flex-start;
+        min-height: auto;
+    }
+    
+    .receipt-container {
+        padding: 20px;
+        max-width: 100%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .receipt-header h1 {
+        font-size: 24px;
+    }
+    
+    .order-meta {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    #order-list li {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .total-section {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    .receipt-container {
+        padding: 15px;
+    }
+    
+    .receipt-header h1 {
+        font-size: 22px;
+    }
+    
+    .receipt-header .subtitle,
+    .meta-label,
+    .meta-value,
+    #order-list li,
+    .total-row,
+    .payment-method {
+        font-size: 14px;
+    }
+    
+    .btn-primary {
+        padding: 10px 20px;
+    }
+}
+
+/* Header */
+.receipt-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #d9c7b8;
+}
+
+.receipt-header .logo {
+    height: 60px;
+    margin-bottom: 10px;
+    max-width: 100%;
+}
+
+.receipt-header h1 {
+    font-size: 28px;
+    margin: 5px 0;
+    color: #6b4f3f;
+    font-weight: 700;
+}
+
+.receipt-header .subtitle {
+    font-size: 14px;
+    color: #9c7c6d;
+    margin: 0;
+}
+
+/* Order Meta */
+.order-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #d9c7b8;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.meta-label {
+    font-size: 12px;
+    color: #9c7c6d;
+}
+
+.meta-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #5a4033;
+}
+
+/* Order Summary */
+.order-summary h2 {
+    font-size: 18px;
+    margin: 0 0 15px 0;
+    color: #6b4f3f;
+    text-align: center;
+}
+
+#order-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+#order-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0e6dd;
+    font-size: 15px;
+}
+
+/* Totals */
+.total-section {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #faf5ef;
+    border-radius: 8px;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+.total-row.grand-total {
+    font-weight: bold;
+    font-size: 16px;
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px dashed #d9c7b8;
+}
+
+/* Payment Method */
+.payment-method {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 15px;
+    border-top: 1px dashed #d9c7b8;
+    border-bottom: 1px dashed #d9c7b8;
+    margin: 15px 0;
+}
+
+/* Footer */
+.receipt-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.thank-you {
+    font-size: 16px;
+    font-weight: bold;
+    color: #6b4f3f;
+    margin-bottom: 5px;
+}
+
+.return-time {
+    font-size: 13px;
+    color: #9c7c6d;
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    background-color: #6b4f3f;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #5a4033;
+}

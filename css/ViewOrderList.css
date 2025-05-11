@@ -1,0 +1,131 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f8f5f2; /* Warmer background */
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0d6cc;
+    font-size: 24px;
+    font-weight: bold;
+    color: #6b4f3f;
+
+    margin: 0 auto;
+}
+.logo {
+    height: 115px;
+}
+
+
+#backButton {
+    padding: 10px 20px;
+    background-color: #6F4E37;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+#backButton:hover {
+    background-color: #5a3d2a;
+}
+
+.order-list-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+    padding: 25px;
+    overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+th, td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background-color: #6F4E37;
+    color: white;
+    position: sticky;
+    top: 0;
+    font-weight: 600;
+}
+
+/* Order type specific styling */
+tr.takeout-order {
+    background-color: #fff9f2;
+    border-left: 4px solid #FFA726; /* Orange accent */
+}
+
+tr.dinein-order {
+    background-color: #f8fafb;
+    border-left: 4px solid #42A5F5; /* Blue accent */
+}
+
+tr:hover {
+    background-color: #f0f0f0;
+}
+
+/* Order type indicator cells */
+td.order-type-cell {
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.takeout-order .order-type-cell {
+    color: #E65100; /* Dark orange */
+}
+
+.dinein-order .order-type-cell {
+    color: #1565C0; /* Dark blue */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+    
+    th, td {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+    
+    .order-list-container {
+        padding: 15px;
+    }
+}
+.status-radio-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.status-radio-option {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-radio-option input[type="radio"] {
+    margin: 0;
+}
+
+.status-cell {
+    min-width: 250px;
+}
