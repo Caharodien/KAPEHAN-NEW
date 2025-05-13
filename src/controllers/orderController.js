@@ -4,27 +4,33 @@ const db = require('../config/database');
 exports.getAllOrders = async (req, res) => {
   try {
     const [orders] = await db.query(`
-      SELECT o.*, 
-             JSON_ARRAYAGG(
-               JSON_OBJECT(
-                 'id', oi.id,
-                 'item_name', oi.item_name,
-                 'quantity', oi.quantity,
-                 'price', oi.price
-               )
-             ) as items
+      SELECT 
+        o.id,
+        o.customer_name,
+        o.total_amount,
+        o.order_time
       FROM orders o
-      LEFT JOIN order_items oi ON o.id = oi.order_id
-      GROUP BY o.id
-      ORDER BY o.created_at DESC
+      ORDER BY o.order_time DESC
     `);
-    
-    // Format response
-    const formattedOrders = orders.map(order => ({
-      ...order,
-      items: order.items[0].id ? order.items : []
+
+    const formattedOrders = await Promise.all(orders.map(async order => {
+      const [items] = await db.query(`
+        SELECT 
+          menu_item_id, 
+          quantity, 
+          price
+        FROM order_items 
+        WHERE order_id = ?`, [order.id]);
+
+      return {
+        id: order.id,
+        customer_name: order.customer_name,
+        total_amount: order.total_amount,
+        order_time: order.order_time,
+        items: items || []  // If no items, return an empty array
+      };
     }));
-    
+
     res.json(formattedOrders);
   } catch (error) {
     console.error('Error fetching orders:', error);
@@ -32,40 +38,46 @@ exports.getAllOrders = async (req, res) => {
   }
 };
 
-// Get orders by status
+// Get orders by status (modified to work with your schema)
 exports.getOrdersByStatus = async (req, res) => {
   const status = req.params.status;
-  
+
   if (!status || !['pending', 'preparing', 'serving', 'completed'].includes(status)) {
-    return res.status(400).json({ 
-      message: 'Valid status required (pending, preparing, serving, completed)' 
+    return res.status(400).json({
+      message: 'Valid status required (pending, preparing, serving, completed)'
     });
   }
-  
+
   try {
     const [orders] = await db.query(`
-      SELECT o.*, 
-             JSON_ARRAYAGG(
-               JSON_OBJECT(
-                 'id', oi.id,
-                 'item_name', oi.item_name,
-                 'quantity', oi.quantity,
-                 'price', oi.price
-               )
-             ) as items
+      SELECT 
+        o.id,
+        o.customer_name,
+        o.total_amount,
+        o.order_time
       FROM orders o
-      LEFT JOIN order_items oi ON o.id = oi.order_id
-      WHERE o.status = ?
-      GROUP BY o.id
-      ORDER BY o.created_at DESC
-    `, [status]);
-    
-    // Format response
-    const formattedOrders = orders.map(order => ({
-      ...order,
-      items: order.items[0].id ? order.items : []
+      ORDER BY o.order_time DESC
+    `);
+
+    const formattedOrders = await Promise.all(orders.map(async order => {
+      const [items] = await db.query(`
+        SELECT 
+          menu_item_id, 
+          quantity, 
+          price
+        FROM order_items 
+        WHERE order_id = ?`, [order.id]);
+
+      return {
+        id: order.id,
+        customer_name: order.customer_name,
+        total_amount: order.total_amount,
+        order_time: order.order_time,
+        status: status, // Adding status to response
+        items: items || []  // If no items, return an empty array
+      };
     }));
-    
+
     res.json(formattedOrders);
   } catch (error) {
     console.error('Error fetching orders by status:', error);
@@ -77,196 +89,141 @@ exports.getOrdersByStatus = async (req, res) => {
 exports.getOrderById = async (req, res) => {
   try {
     const [orders] = await db.query(`
-      SELECT o.*, 
-             JSON_ARRAYAGG(
-               JSON_OBJECT(
-                 'id', oi.id,
-                 'item_name', oi.item_name,
-                 'quantity', oi.quantity,
-                 'price', oi.price
-               )
-             ) as items
+      SELECT 
+        o.id,
+        o.customer_name,
+        o.total_amount,
+        o.order_time
       FROM orders o
-      LEFT JOIN order_items oi ON o.id = oi.order_id
-      WHERE o.id = ? OR o.order_number = ?
-      GROUP BY o.id
-    `, [req.params.id, req.params.id]);
-    
+      WHERE o.id = ?`, [req.params.id]);
+
     if (orders.length === 0) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    
-    // Format response
-    const order = {
-      ...orders[0],
-      items: orders[0].items[0].id ? orders[0].items : []
-    };
-    
-    res.json(order);
+
+    const [items] = await db.query(`
+      SELECT 
+        menu_item_id, 
+        quantity, 
+        price
+      FROM order_items 
+      WHERE order_id = ?`, [req.params.id]);
+
+    res.json({
+      id: orders[0].id,
+      customer_name: orders[0].customer_name,
+      total_amount: orders[0].total_amount,
+      order_time: orders[0].order_time,
+      items: items || []  // If no items, return an empty array
+    });
   } catch (error) {
     console.error('Error fetching order:', error);
     res.status(500).json({ message: 'Server error when fetching order' });
   }
 };
 
-// Generate unique order number
-function generateOrderNumber(orderType) {
-  // First letter - D for Dine-In, T for Takeout
-  const prefix = orderType === 'Dine-In' ? 'D' : 'T';
-  const timestamp = Date.now().toString();
-  // Get last 6 digits of timestamp + random 1 digit
-  const orderNumber = prefix + timestamp.slice(-6) + Math.floor(Math.random() * 10);
-  return orderNumber.slice(0, 8); // Ensure max 8 chars
-}
-
-// Create a new order
+// Create a new order (modified for your schema)
 exports.createOrder = async (req, res) => {
-  const { order_type, items, total_amount, payment_method = 'Cash' } = req.body;
-  
+  const { customer_name, items } = req.body;
+
   // Validate required fields
-  if (!order_type || !items || !Array.isArray(items) || items.length === 0 || !total_amount) {
-    return res.status(400).json({ 
-      message: 'Order type, items array, and total amount are required' 
+  if (!customer_name || !items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({
+      message: 'Customer name and items array are required'
     });
   }
-  
-  if (!['Dine-In', 'Takeout'].includes(order_type)) {
-    return res.status(400).json({ message: 'Order type must be either "Dine-In" or "Takeout"' });
-  }
-  
+
   try {
-    // Start transaction
     await db.query('START TRANSACTION');
-    
-    // Get the max priority number
-    const [maxPriorityResult] = await db.query('SELECT MAX(priority_number) as max_priority FROM orders');
-    const maxPriority = maxPriorityResult[0].max_priority || 0;
-    const priorityNumber = maxPriority + 1;
-    
-    // Generate order number
-    const orderNumber = generateOrderNumber(order_type);
-    
+
+    // Calculate total amount
+    const total_amount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
     // Insert order
     const [orderResult] = await db.query(
-      'INSERT INTO orders (order_number, priority_number, order_type, total_amount, payment_method, status) VALUES (?, ?, ?, ?, ?, ?)',
-      [orderNumber, priorityNumber, order_type, total_amount, payment_method, 'pending']
+      'INSERT INTO orders (customer_name, total_amount) VALUES (?, ?)',
+      [customer_name, total_amount]
     );
-    
-    const orderId = orderResult.insertId;
-    
+
     // Insert order items
-    for (const item of items) {
-      await db.query(
-        'INSERT INTO order_items (order_id, item_name, quantity, price) VALUES (?, ?, ?, ?)',
-        [orderId, item.name, item.quantity || 1, item.price]
-      );
-    }
-    
-    // Commit transaction
+    const itemPromises = items.map(item =>
+      db.query(
+        'INSERT INTO order_items (order_id, menu_item_id, quantity, price) VALUES (?, ?, ?, ?)',
+        [orderResult.insertId, item.menu_item_id, item.quantity, item.price]
+      )
+    );
+    await Promise.all(itemPromises);
+
     await db.query('COMMIT');
-    
-    // Get complete order
+
+    // Get the created order
     const [orderData] = await db.query(`
-      SELECT o.*, 
-             JSON_ARRAYAGG(
-               JSON_OBJECT(
-                 'id', oi.id,
-                 'item_name', oi.item_name,
-                 'quantity', oi.quantity,
-                 'price', oi.price
-               )
-             ) as items
+      SELECT 
+        o.id,
+        o.customer_name,
+        o.total_amount,
+        o.order_time
       FROM orders o
-      LEFT JOIN order_items oi ON o.id = oi.order_id
-      WHERE o.id = ?
-      GROUP BY o.id
-    `, [orderId]);
-    
-    // Format response
-    const createdOrder = {
-      ...orderData[0],
-      items: orderData[0].items[0].id ? orderData[0].items : []
-    };
-    
-    res.status(201).json(createdOrder);
+      WHERE o.id = ?`, [orderResult.insertId]);
+
+    const [itemsData] = await db.query(`
+      SELECT 
+        menu_item_id, 
+        quantity, 
+        price
+      FROM order_items 
+      WHERE order_id = ?`, [orderResult.insertId]);
+
+    res.status(201).json({
+      id: orderData[0].id,
+      customer_name: orderData[0].customer_name,
+      total_amount: orderData[0].total_amount,
+      order_time: orderData[0].order_time,
+      items: itemsData || []  // If no items, return an empty array
+    });
   } catch (error) {
-    // Rollback transaction in case of error
     await db.query('ROLLBACK');
     console.error('Error creating order:', error);
-    res.status(500).json({ message: 'Server error when creating order' });
-  }
-};
-
-// Update order status
-exports.updateOrderStatus = async (req, res) => {
-  const { status } = req.body;
-  const id = req.params.id;
-  
-  if (!status || !['pending', 'preparing', 'serving', 'completed'].includes(status)) {
-    return res.status(400).json({ 
-      message: 'Valid status is required (pending, preparing, serving, completed)' 
+    res.status(500).json({
+      message: 'Server error when creating order',
+      error: error.message
     });
   }
-  
-  try {
-    const [result] = await db.query(
-      'UPDATE orders SET status = ? WHERE id = ? OR order_number = ?',
-      [status, id, id]
-    );
-    
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-    
-    // Get updated order
-    const [orders] = await db.query(`
-      SELECT o.*, 
-             JSON_ARRAYAGG(
-               JSON_OBJECT(
-                 'id', oi.id,
-                 'item_name', oi.item_name,
-                 'quantity', oi.quantity,
-                 'price', oi.price
-               )
-             ) as items
-      FROM orders o
-      LEFT JOIN order_items oi ON o.id = oi.order_id
-      WHERE o.id = ? OR o.order_number = ?
-      GROUP BY o.id
-    `, [id, id]);
-    
-    if (orders.length === 0) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-    
-    // Format response
-    const order = {
-      ...orders[0],
-      items: orders[0].items[0].id ? orders[0].items : []
-    };
-    
-    res.json(order);
-  } catch (error) {
-    console.error('Error updating order status:', error);
-    res.status(500).json({ message: 'Server error when updating order status' });
-  }
 };
 
-// Delete an order (admin only)
+// Update order status (modified for your schema)
+exports.updateOrderStatus = async (req, res) => {
+  // Since your schema doesn't have status, we'll return a message
+  res.json({
+    message: 'Status update not supported in current schema',
+    note: 'Your orders table needs a status column to use this feature'
+  });
+};
+
+// Delete an order
 exports.deleteOrder = async (req, res) => {
   try {
-    const [result] = await db.query(
-      'DELETE FROM orders WHERE id = ? OR order_number = ?',
-      [req.params.id, req.params.id]
-    );
-    
+    await db.query('START TRANSACTION');
+
+    // First delete order items
+    await db.query('DELETE FROM order_items WHERE order_id = ?', [req.params.id]);
+
+    // Then delete the order
+    const [result] = await db.query('DELETE FROM orders WHERE id = ?', [req.params.id]);
+
+    await db.query('COMMIT');
+
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    
-    res.json({ message: 'Order deleted successfully' });
+
+    res.json({
+      message: 'Order deleted successfully',
+      order_id: req.params.id
+    });
   } catch (error) {
+    await db.query('ROLLBACK');
     console.error('Error deleting order:', error);
     res.status(500).json({ message: 'Server error when deleting order' });
   }
-};  
+};
