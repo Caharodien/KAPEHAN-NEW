@@ -6,9 +6,22 @@
     "start": "node src/app.js"
   },
   "dependencies": {
+    "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "mysql2": "^3.14.1"
-  }
+  },
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Caharodien/KAPEHAN-NEW.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Caharodien/KAPEHAN-NEW/issues"
+  },
+  "homepage": "https://github.com/Caharodien/KAPEHAN-NEW#readme"
 }

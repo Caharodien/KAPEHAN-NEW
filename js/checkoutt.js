@@ -1,7 +1,7 @@
 // =============================================
 // Order History Save Function (Global Scope)
 // =============================================
-function saveOrder(orderData) {
+function saveOrderToHistory(orderData) {
     try {
         let orders = JSON.parse(localStorage.getItem('coffeeShopOrders') || "[]");
         if (!Array.isArray(orders)) {
@@ -31,12 +31,12 @@ function saveOrder(orderData) {
     }
 }
 
-// Generate a 7-digit order number with D prefix
+// Generate a 7-digit order number with T prefix (T for Takeout)
 function generateOrderNumber() {
     const timestamp = Date.now().toString();
     // Get last 6 digits of timestamp + random 1 digit to make 7 digits
     const orderNum = 'T' + timestamp.slice(-6) + Math.floor(Math.random() * 10);
-    return orderNum.slice(0, 8); // Ensure max 7 digits after D prefix
+    return orderNum.slice(0, 8); // Ensure max 7 digits after T prefix
 }
 
 // =============================================
@@ -50,184 +50,146 @@ document.addEventListener("DOMContentLoaded", function () {
     const body = document.body;
 
     // Retrieve current order from localStorage
-    const orderList = JSON.parse(localStorage.getItem("orderList")) || [];
-    const totalPrice = parseFloat(localStorage.getItem("totalPrice")) || 0;
+    const currentOrder = JSON.parse(localStorage.getItem("currentOrder")) || [];
+    const totalPrice = parseFloat(totalPriceElement.textContent.replace('₱', '')) || 0;
 
     // Display order items
-    orderList.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = `${item.name} - ₱${item.price.toFixed(2)}`;
-        orderListElement.appendChild(li);
-    });
+    function displayOrderItems() {
+        orderListElement.innerHTML = '';
+        let calculatedTotal = 0;
 
-    // Display total price
-    totalPriceElement.textContent = `Total: ₱${totalPrice.toFixed(2)}`;
+        currentOrder.forEach(item => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <span class="item-name">${item.name}</span>
+                <span class="item-quantity">x${item.quantity || 1}</span>
+                <span class="item-price">₱${(item.price * (item.quantity || 1)).toFixed(2)}</span>
+            `;
+            orderListElement.appendChild(li);
+            calculatedTotal += item.price * (item.quantity || 1);
+        });
+
+        totalPriceElement.textContent = `₱${calculatedTotal.toFixed(2)}`;
+        return calculatedTotal;
+    }
+
+    // Initial display
+    const calculatedTotal = displayOrderItems();
 
     // =============================================
     // Confirm Payment Button Handler
     // =============================================
-    confirmPaymentButton.addEventListener("click", function () {
-        const automaticPaymentMethod = "Cash";
+    confirmPaymentButton.addEventListener("click", async function () {
+        if (currentOrder.length === 0) {
+            alert('Please add items to your order first!');
+            return;
+        }
+
+        const orderType = "Take-out";
+        const totalAmount = calculatedTotal;
         const orderNumber = generateOrderNumber();
         
-        // Create complete order data
-        const completeOrderData = {
-            id: orderNumber,
-            orderType: "Takeout",
-            items: orderList.map(item => ({
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity || 1
-            })),
-            total: totalPrice,
-            paymentMethod: automaticPaymentMethod,
-            timestamp: new Date().toISOString()
-        };
-
-        // Save to order history and get priority number
-        const priorityNumber = saveOrder(completeOrderData);
-
-        if (priorityNumber) {
-            // Store all receipt data
-            const receiptData = {
-                orderNumber: orderNumber,
-                priorityNumber: priorityNumber,
-                orderType: "Takeout",
-                items: orderList,
-                total: totalPrice,
-                paymentMethod: automaticPaymentMethod,
-                timestamp: completeOrderData.timestamp
-            };
+        try {
+            // First save to database
+            console.log('Attempting to save order to database...');
+            const response = await fetch('http://localhost:3001/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    order_type: orderType,
+                    items: currentOrder,
+                    total_amount: totalAmount,
+                    payment_method: 'Cash'
+                })
+            });
             
-            localStorage.setItem("receiptData", JSON.stringify(receiptData));
+            const dbData = await response.json();
             
-            // Also store in overview data for view order list
-            const overviewData = {
-                priorityNumber: priorityNumber,
-                orderNumber: orderNumber,
+            if (!response.ok) {
+                throw new Error(dbData.message || 'Failed to save order to database');
+            }
+
+            console.log('Order saved to database:', dbData);
+
+            // Then save to local history
+            const completeOrderData = {
+                id: orderNumber,
                 orderType: "Takeout",
-                items: orderList.map(item => ({
+                items: currentOrder.map(item => ({
                     name: item.name,
+                    price: item.price,
                     quantity: item.quantity || 1
                 })),
-                total: totalPrice,
-                timestamp: completeOrderData.timestamp
+                total: totalAmount,
+                paymentMethod: "Cash",
+                timestamp: new Date().toISOString(),
+                dbId: dbData.order.id,
+                dbOrderNumber: dbData.order.order_number
             };
-            localStorage.setItem("latestOrderOverview", JSON.stringify(overviewData));
 
-            // Update the view order list immediately
-            updateViewOrderList(overviewData);
+            const priorityNumber = saveOrderToHistory(completeOrderData);
 
-            alert(`Priority #${priorityNumber} confirmed!\n${orderNumber}\nTotal: ₱${totalPrice.toFixed(2)}`);
+            if (priorityNumber) {
+                // Store all receipt data
+                const receiptData = {
+                    orderNumber: orderNumber,
+                    priorityNumber: priorityNumber,
+                    orderType: "Takeout",
+                    items: currentOrder,
+                    total: totalAmount,
+                    paymentMethod: "Cash",
+                    timestamp: completeOrderData.timestamp,
+                    dbOrderNumber: dbData.order.order_number
+                };
+                
+                localStorage.setItem("receiptData", JSON.stringify(receiptData));
+                
+                // Also store in overview data for view order list
+                const overviewData = {
+                    priorityNumber: priorityNumber,
+                    orderNumber: orderNumber,
+                    orderType: "Takeout",
+                    items: currentOrder.map(item => ({
+                        name: item.name,
+                        quantity: item.quantity || 1
+                    })),
+                    total: totalAmount,
+                    timestamp: completeOrderData.timestamp,
+                    dbOrderNumber: dbData.order.order_number
+                };
+                localStorage.setItem("latestOrderOverview", JSON.stringify(overviewData));
 
-            // Animation before redirect
-            body.classList.add("pull-down-exit");
-            setTimeout(() => {
-                localStorage.removeItem("orderList");
-                localStorage.removeItem("totalPrice");
-                window.location.href = "receipt.html";
-            }, 500);
-        } else {
-            alert("Failed to save order. Please try again.");
+                // Update the view order list immediately
+                if (typeof updateViewOrderList === 'function') {
+                    updateViewOrderList(overviewData);
+                }
+
+                alert(`Priority #${priorityNumber} confirmed!\n${orderNumber}\nTotal: ₱${totalAmount.toFixed(2)}`);
+
+                // Animation before redirect
+                body.classList.add("pull-down-exit");
+                setTimeout(() => {
+                    localStorage.removeItem("currentOrder");
+                    window.location.href = "receipt.html";
+                }, 500);
+            } else {
+                throw new Error("Failed to save to local history");
+            }
+        } catch (error) {
+            console.error('Error processing order:', error);
+            alert(`Error: ${error.message}\nCheck console for details.`);
         }
     });
- //=============//
+
     // =============================================
     // Add More Button Handler
     // =============================================
     addMoreButton.addEventListener("click", function () {
         body.classList.add("pull-down-exit");
         setTimeout(() => {
-            window.location.href = "Takeoutmenu.html";
+            window.location.href = "takeoutmenu.html";
         }, 500);
     });
 });
-
-// =============================================
-// Update View Order List Function
-// =============================================
-function updateViewOrderList(newOrder) {
-    try {
-        // Get existing orders from view order list
-        let orders = JSON.parse(localStorage.getItem('coffeeShopOrders') || "[]");
-        
-        // Add the new order
-        orders.push(newOrder);
-        
-        // Save back to localStorage
-        localStorage.setItem('coffeeShopOrders', JSON.stringify(orders));
-        
-        // If we're currently on the view order list page, refresh the display
-        if (window.location.pathname.includes('vieworderlist.html')) {
-            displayOrders();
-        }
-    } catch (error) {
-        console.error("Error updating view order list:", error);
-    }
-}
-
-// =============================================
-// Display Orders Function (for vieworderlist.html)
-// =============================================
-function displayOrders() {
-    // Only run if we're on the view order list page
-    if (!window.location.pathname.includes('vieworderlist.html')) return;
-    
-    const orders = JSON.parse(localStorage.getItem('coffeeShopOrders') || '[]');
-    const tableBody = document.getElementById('ordersTableBody');
-    
-    if (!tableBody) return;
-    
-    tableBody.innerHTML = ''; // Clear existing rows
-    
-    if (orders.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="6">No orders found</td></tr>';
-        return;
-    }
-    
-    orders.forEach(order => {
-        const row = document.createElement('tr');
-        
-        // Add class based on order type for styling
-        row.classList.add(order.orderType === 'Takeout' ? 'takeout-order' : 'dinein-order');
-        
-        // Format items list
-        const itemsList = order.items && order.items.length > 0 
-            ? order.items.map(item => `${item.name} (${item.quantity || 1})`).join(', ') 
-            : '';
-        
-        // Format time
-        let timeString = 'N/A';
-        try {
-            const orderTime = new Date(order.timestamp);
-            timeString = orderTime.toLocaleTimeString([], { 
-                hour: '2-digit', 
-                minute: '2-digit',
-                hour12: true 
-            });
-        } catch (e) {
-            console.error('Error formatting time:', e);
-        }
-        
-        // Create type indicator with emojis
-        const typeIndicator = order.orderType === 'Takeout' 
-            ? '🛍️ Takeout' 
-            : '🍽️ Dine-in';
-        
-        row.innerHTML = `
-            <td>${order.priorityNumber || 'N/A'}</td>
-            <td>${order.orderNumber || order.id || 'N/A'}</td>
-            <td class="order-type-cell">${typeIndicator}</td>
-            <td>${itemsList}</td>
-            <td>₱${order.total ? order.total.toFixed(2) : '0.00'}</td>
-            <td>${timeString}</td>
-        `;
-        
-        tableBody.appendChild(row);
-    });
-}
-
-// Initialize display if on view order list page
-if (window.location.pathname.includes('vieworderlist.html')) {
-    document.addEventListener('DOMContentLoaded', displayOrders);
-}
