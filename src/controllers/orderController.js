@@ -1,9 +1,8 @@
-const db = require('../config/database');
+const { pool } = require('../config/database');
 
-// Get all orders with detailed items
 exports.getAllOrders = async (req, res) => {
   try {
-    const [orders] = await db.query(`
+    const [orders] = await pool.query(`
       SELECT 
         o.id,
         o.order_number,
@@ -19,7 +18,7 @@ exports.getAllOrders = async (req, res) => {
     `);
 
     const formattedOrders = await Promise.all(orders.map(async order => {
-      const [items] = await db.query(`
+      const [items] = await pool.query(`
         SELECT 
           product_name, 
           quantity, 
@@ -54,7 +53,6 @@ exports.getAllOrders = async (req, res) => {
   }
 };
 
-// Get orders by status
 exports.getOrdersByStatus = async (req, res) => {
   const status = req.params.status;
 
@@ -66,7 +64,7 @@ exports.getOrdersByStatus = async (req, res) => {
   }
 
   try {
-    const [orders] = await db.query(`
+    const [orders] = await pool.query(`
       SELECT 
         o.id,
         o.order_number,
@@ -80,7 +78,7 @@ exports.getOrdersByStatus = async (req, res) => {
     `, [status]);
 
     const formattedOrders = await Promise.all(orders.map(async order => {
-      const [items] = await db.query(`
+      const [items] = await pool.query(`
         SELECT 
           product_name, 
           quantity, 
@@ -113,10 +111,9 @@ exports.getOrdersByStatus = async (req, res) => {
   }
 };
 
-// Get a single order by ID
 exports.getOrderById = async (req, res) => {
   try {
-    const [orders] = await db.query(`
+    const [orders] = await pool.query(`
       SELECT 
         o.id,
         o.order_number,
@@ -137,7 +134,7 @@ exports.getOrderById = async (req, res) => {
       });
     }
 
-    const [items] = await db.query(`
+    const [items] = await pool.query(`
       SELECT 
         product_name, 
         quantity, 
@@ -169,11 +166,9 @@ exports.getOrderById = async (req, res) => {
   }
 };
 
-// Create a new order
 exports.createOrder = async (req, res) => {
   const { order_type, coffee_type, items, total_amount, payment_method = 'Cash' } = req.body;
 
-  // Validate required fields
   if (!order_type || !items || !Array.isArray(items) || items.length === 0 || !total_amount) {
     return res.status(400).json({
       success: false,
@@ -182,22 +177,19 @@ exports.createOrder = async (req, res) => {
   }
 
   try {
-    await db.query('START TRANSACTION');
+    await pool.query('START TRANSACTION');
 
-    // Generate order number (e.g., ORD-20230515-001)
     const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const [lastOrder] = await db.query('SELECT id FROM orders ORDER BY id DESC LIMIT 1');
+    const [lastOrder] = await pool.query('SELECT id FROM orders ORDER BY id DESC LIMIT 1');
     const sequence = lastOrder.length > 0 ? lastOrder[0].id + 1 : 1;
     const order_number = `ORD-${datePart}-${sequence.toString().padStart(3, '0')}`;
     
-    // Generate priority number
-    const [pendingOrders] = await db.query(
+    const [pendingOrders] = await pool.query(
       'SELECT COUNT(*) as count FROM orders WHERE status IN ("Pending", "Preparing")'
     );
     const priority_number = pendingOrders[0].count + 1;
 
-    // Create order
-    const [result] = await db.query(
+    const [result] = await pool.query(
       `INSERT INTO orders 
         (order_number, order_type, coffee_type, priority_number, total_amount, payment_method) 
        VALUES (?, ?, ?, ?, ?, ?)`,
@@ -206,9 +198,8 @@ exports.createOrder = async (req, res) => {
     
     const orderId = result.insertId;
 
-    // Add order items
     const itemPromises = items.map(item =>
-      db.query(
+      pool.query(
         `INSERT INTO order_items 
           (order_id, product_name, quantity, unit_price) 
          VALUES (?, ?, ?, ?)`,
@@ -217,10 +208,9 @@ exports.createOrder = async (req, res) => {
     );
     await Promise.all(itemPromises);
 
-    await db.query('COMMIT');
-
-    // Get the created order with items
-    const [orderData] = await db.query(`
+    await pool.query('COMMIT');
+    
+    const [orderData] = await pool.query(`
       SELECT 
         o.id,
         o.order_number,
@@ -234,7 +224,7 @@ exports.createOrder = async (req, res) => {
       FROM orders o
       WHERE o.id = ?`, [orderId]);
 
-    const [itemsData] = await db.query(`
+    const [itemsData] = await pool.query(`
       SELECT 
         product_name, 
         quantity, 
@@ -258,7 +248,7 @@ exports.createOrder = async (req, res) => {
       }
     });
   } catch (error) {
-    await db.query('ROLLBACK');
+    await pool.query('ROLLBACK');
     console.error('Error creating order:', error);
     res.status(500).json({
       success: false,
@@ -268,9 +258,8 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-// Update order status
 exports.updateOrderStatus = async (req, res) => {
-  const { orderId } = req.params;
+  const { id } = req.params;
   const { status } = req.body;
 
   if (!status || !['Pending', 'Preparing', 'Ready', 'Completed'].includes(status)) {
@@ -281,9 +270,9 @@ exports.updateOrderStatus = async (req, res) => {
   }
 
   try {
-    const [result] = await db.query(
+    const [result] = await pool.query(
       'UPDATE orders SET status = ? WHERE id = ?', 
-      [status, orderId]
+      [status, id]
     );
     
     if (result.affectedRows === 0) {
@@ -296,7 +285,7 @@ exports.updateOrderStatus = async (req, res) => {
     res.json({ 
       success: true,
       message: 'Order status updated successfully',
-      order_id: orderId,
+      order_id: id,
       new_status: status
     });
   } catch (error) {
@@ -308,18 +297,15 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
-// Delete an order
 exports.deleteOrder = async (req, res) => {
   try {
-    await db.query('START TRANSACTION');
+    await pool.query('START TRANSACTION');
 
-    // First delete order items
-    await db.query('DELETE FROM order_items WHERE order_id = ?', [req.params.id]);
+    await pool.query('DELETE FROM order_items WHERE order_id = ?', [req.params.id]);
 
-    // Then delete the order
-    const [result] = await db.query('DELETE FROM orders WHERE id = ?', [req.params.id]);
+    const [result] = await pool.query('DELETE FROM orders WHERE id = ?', [req.params.id]);
 
-    await db.query('COMMIT');
+    await pool.query('COMMIT');
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ 
@@ -334,7 +320,7 @@ exports.deleteOrder = async (req, res) => {
       order_id: req.params.id
     });
   } catch (error) {
-    await db.query('ROLLBACK');
+    await pool.query('ROLLBACK');
     console.error('Error deleting order:', error);
     res.status(500).json({ 
       success: false,

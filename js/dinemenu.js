@@ -15,23 +15,105 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let totalPrice = 0;
     let orderList = [];
+    let menuItems = [];
 
-    // Page exit animation function
+    const API_BASE_URL = 'http://localhost:3001/api';
+
     function animatePageExit(destination) {
-        // Apply slide-up animation
         container.style.animation = "slideUpExit 0.5s ease-out forwards";
         
-        // Wait for animation to complete before navigating
         setTimeout(() => {
             window.location.href = destination;
         }, 500);
     }
 
-    // Ensure only HOT menu is visible at the start
     hotMenu.style.display = "grid";
     coldMenu.style.display = "none";
 
-    // HOT button click
+    async function fetchMenuItems() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/menu/items`);
+            const data = await response.json();
+            
+            if (data.success) {
+                return data.items;
+            } else {
+                console.error('Failed to fetch menu items:', data.message);
+                return [];
+            }
+        } catch (error) {
+            console.error('Error fetching menu items:', error);
+            return [];
+        }
+    }
+
+    async function initializeMenuItems() {
+        hotMenu.innerHTML = '<div class="loading">Loading menu items...</div>';
+        coldMenu.innerHTML = '<div class="loading">Loading menu items...</div>';
+        
+        menuItems = await fetchMenuItems();
+        
+        if (menuItems.length === 0) {
+            hotMenu.innerHTML = '<div class="error">Failed to load menu items. Please try again later.</div>';
+            coldMenu.innerHTML = '<div class="error">Failed to load menu items. Please try again later.</div>';
+            return;
+        }
+        
+        displayMenuItems();
+        setupMenuItemClickHandlers();
+    }
+    
+    function displayMenuItems() {
+        const hotItems = menuItems.filter(item => item.category === 'hot');
+        const coldItems = menuItems.filter(item => item.category === 'cold');
+        
+        hotMenu.innerHTML = '';
+        coldMenu.innerHTML = '';
+        
+        hotItems.forEach(item => {
+            const itemElement = createMenuItemElement(item);
+            hotMenu.appendChild(itemElement);
+        });
+        
+        coldItems.forEach(item => {
+            const itemElement = createMenuItemElement(item);
+            coldMenu.appendChild(itemElement);
+        });
+    }
+    
+    function createMenuItemElement(item) {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.setAttribute('data-id', item.id);
+        div.setAttribute('data-name', item.name);
+        div.setAttribute('data-price', item.price);
+        
+        div.innerHTML = `
+            <img src="${item.image_url}" alt="${item.name}">
+            <p>${item.name}</p>
+            <div class="description">${item.description}</div>
+        `;
+        
+        return div;
+    }
+    
+    function setupMenuItemClickHandlers() {
+        document.querySelectorAll(".item").forEach(item => {
+            item.addEventListener("click", function() {
+                const itemId = this.getAttribute('data-id');
+                const itemName = this.getAttribute('data-name');
+                const itemPrice = parseFloat(this.getAttribute('data-price'));
+                
+                addToOrder(itemName, itemPrice);
+                
+                this.style.transform = "scale(0.95)";
+                setTimeout(() => {
+                    this.style.transform = "scale(1)";
+                }, 100);
+            });
+        });
+    }
+
     hotTab.addEventListener("click", function () {
         hotMenu.style.display = "grid";
         coldMenu.style.display = "none";
@@ -39,7 +121,6 @@ document.addEventListener("DOMContentLoaded", function () {
         coldTab.classList.remove("active");
     });
 
-    // COLD button click
     coldTab.addEventListener("click", function () {
         coldMenu.style.display = "grid";
         hotMenu.style.display = "none";
@@ -47,44 +128,24 @@ document.addEventListener("DOMContentLoaded", function () {
         hotTab.classList.remove("active");
     });
 
-    // Start Again Button - Show Confirmation Modal
     startAgain.addEventListener("click", function () {
         confirmModal.style.display = "block";
     });
 
-    // If Yes is clicked - Redirect with slide-up animation
     confirmYes.addEventListener("click", function () {
         localStorage.clear();
         animatePageExit("D&T.html");
     });
 
-    // If No is clicked - Close Modal
     confirmNo.addEventListener("click", function () {
         confirmModal.style.display = "none";
     });
 
-    // Add event listeners to all menu items
-    document.querySelectorAll(".item").forEach(item => {
-        item.addEventListener("click", function () {
-            const itemName = this.querySelector("p").innerText;
-            const itemPrice = 39; // Assuming each item costs ₱39
-            addToOrder(itemName, itemPrice);
-            
-            // Add click feedback
-            this.style.transform = "scale(0.95)";
-            setTimeout(() => {
-                this.style.transform = "scale(1)";
-            }, 100);
-        });
-    });
-
-    // Add item to order list with quantity tracking
     function addToOrder(name, price) {
         const existingItem = orderList.find(item => item.name === name);
         
         if (existingItem) {
             existingItem.quantity += 1;
-            existingItem.price += price;
         } else {
             orderList.push({ 
                 name, 
@@ -96,7 +157,6 @@ document.addEventListener("DOMContentLoaded", function () {
         totalPrice += price;
         updateOrderList();
         
-        // Visual feedback
         const feedback = document.createElement("div");
         feedback.className = "order-feedback";
         feedback.textContent = `+1 ${name}`;
@@ -109,13 +169,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 50);
     }
 
-    // Remove item from order list
     function removeFromOrder(index) {
         const item = orderList[index];
         if (item.quantity > 1) {
             item.quantity -= 1;
-            item.price -= 39;
-            totalPrice -= 39;
+            totalPrice -= item.price;
         } else {
             totalPrice -= item.price;
             orderList.splice(index, 1);
@@ -123,11 +181,9 @@ document.addEventListener("DOMContentLoaded", function () {
         updateOrderList();
     }
 
-    // Update order list display
     function updateOrderList() {
         totalPriceElement.textContent = `₱${totalPrice.toFixed(2)}`;
         
-        // Animate price change
         totalPriceElement.style.transform = "scale(1.1)";
         setTimeout(() => {
             totalPriceElement.style.transform = "scale(1)";
@@ -137,26 +193,24 @@ document.addEventListener("DOMContentLoaded", function () {
         orderList.forEach((item, index) => {
             const li = document.createElement("li");
             li.innerHTML = `
-                ${item.quantity}x ${item.name} - ₱${item.price.toFixed(2)}
+                ${item.quantity}x ${item.name} - ₱${(item.price * item.quantity).toFixed(2)}
                 <button class="remove-btn" data-index="${index}">❌</button>
             `;
             orderItemsElement.appendChild(li);
         });
 
         document.querySelectorAll(".remove-btn").forEach(button => {
-            button.addEventListener("click", function () {
+            button.addEventListener("click", function() {
                 removeFromOrder(this.getAttribute("data-index"));
             });
         });
 
-        localStorage.setItem("orderList", JSON.stringify(orderList));
+        localStorage.setItem("currentOrder", JSON.stringify(orderList));
         localStorage.setItem("totalPrice", totalPrice);
     }
 
-    // Proceed to checkout with slide-up animation
-    proceedCheckout.addEventListener("click", function () {
+    proceedCheckout.addEventListener("click", function() {
         if (orderList.length === 0) {
-            // Shake animation for empty order
             proceedCheckout.style.animation = "shake 0.5s";
             setTimeout(() => {
                 proceedCheckout.style.animation = "";
@@ -173,12 +227,15 @@ document.addEventListener("DOMContentLoaded", function () {
             }, 2000);
             return;
         }
+        
+        localStorage.setItem("currentOrder", JSON.stringify(orderList));
+        localStorage.setItem("totalPrice", totalPrice);
+        
         animatePageExit("checkoutD.html");
     });
 
-    // Load order from localStorage on page load
     function loadOrder() {
-        const savedOrderList = JSON.parse(localStorage.getItem("orderList")) || [];
+        const savedOrderList = JSON.parse(localStorage.getItem("currentOrder")) || [];
         const savedTotalPrice = parseFloat(localStorage.getItem("totalPrice")) || 0;
 
         orderList = savedOrderList;
@@ -187,6 +244,6 @@ document.addEventListener("DOMContentLoaded", function () {
         updateOrderList();
     }
 
-    // Load order when the page loads
+    initializeMenuItems();
     loadOrder();
 });

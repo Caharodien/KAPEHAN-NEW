@@ -1,35 +1,50 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
+const { setupDatabase } = require('./config/database');
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
-app.use(express.json()); // Built-in body parser
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Routes
+app.use(express.static(path.join(__dirname, '..')));
+
 const menuRoutes = require('./routes/menuRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 
-// Ensure that the routes are functions
-if (typeof menuRoutes === 'function' && typeof orderRoutes === 'function') {
-  app.use('/api/menu', menuRoutes);
-  app.use('/api/orders', orderRoutes);
-} else {
-  console.error('Routes are not correctly exported as functions');
-}
+app.use('/api/menu', menuRoutes);
+app.use('/api/orders', orderRoutes);
 
-// Root test route
 app.get('/', (req, res) => {
   res.send('Coffee Shop API is running!');
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+async function startServer() {
+  try {
+    const dbInitialized = await setupDatabase();
+    
+    if (!dbInitialized) {
+      console.error('Failed to initialize database. Check your database configuration.');
+      process.exit(1);
+    }
+    
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { app, startServer };

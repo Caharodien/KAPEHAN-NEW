@@ -14,111 +14,27 @@
     </header>
 
     <div class="container">
-        <!-- LEFT SIDE: MENU -->
         <div class="menu-container">
             <div class="menu">
                 <button id="hot-tab" class="tab active">HOT</button>
                 <button id="cold-tab" class="tab">COLD</button>
             </div>
             
-            <!-- HOT COFFEE MENU -->
             <div class="order-grid" id="hot-menu">
-                <div class="item">
-                    <img src="../images/Coffee Espresso.jpeg" alt="Espresso">
-                    <p>Espresso</p>
-                    <div class="description">Strong concentrated coffee, served in small shots</div>
-                </div>
-                <div class="item">
-                    <img src="../images/Americano Coffee.jpeg" alt="Americano">
-                    <p>Americano</p>
-                    <div class="description">Espresso diluted with hot water for a smoother taste</div>
-                </div>
-                <div class="item">
-                    <img src="../images/Cappuccin.jpeg" alt="Cappuccino">
-                    <p>Cappuccino</p>
-                    <div class="description">Espresso with steamed milk and silky foam</div>
-                </div>
-                <div class="item">
-                    <img src="../images/Coffee Latte.jpeg" alt="Latte">
-                    <p>Latte</p>
-                    <div class="description">Creamy espresso with lots of steamed milk</div>
-                </div>
-                <div class="item">
-                    <img src="../images/Black Coffee.jpeg" alt="Black Coffee">
-                    <p>Black Coffee</p>
-                    <div class="description">Classic drip coffee, bold and uncompromising</div>
-                </div>
-                <div class="item">
-                    <img src="../images/Mocha.jpeg" alt="Mocha">
-                    <p>Mocha</p>
-                    <div class="description">Chocolate-infused espresso with steamed milk</div>
-                </div>
-                <div class="item">
-                    <img src="../images/Flatt White.jpeg" alt="Flat White">
-                    <p>Flat White</p>
-                    <div class="description">Ristretto espresso with velvety microfoam</div>
-                </div>
-                <div class="item">
-                    <img src="../images/Irish Coffee.jpeg" alt="Irish Coffee">
-                    <p>Irish Coffee</p>
-                    <div class="description">Spiked coffee with whiskey and whipped cream</div>
-                </div>
+                <div class="loading">Loading menu items...</div>
             </div>
-
-            <!-- COLD COFFEE MENU -->
+            
             <div class="order-grid" id="cold-menu" style="display: none;">
-                <div class="item">
-                    <img src="../images/iced coffee.jpeg" alt="Iced Coffee">
-                    <p>Iced Coffee</p>
-                    <div class="description">Chilled coffee served over ice, sweetened to taste</div>
-                </div>
-                <div class="item">
-                    <img src="../images/Iced Coffee latte.jpeg" alt="Iced Latte">
-                    <p>Iced Latte</p>
-                    <div class="description">Espresso chilled with milk and ice</div>
-                </div>
-                <div class="item">
-                    <img src="../images/Iced Americano.jpeg" alt="Iced Americano">
-                    <p>Iced Americano</p>
-                    <div class="description">Refreshing diluted espresso over ice</div>
-                </div>
-                <div class="item">
-                    <img src="../images/icedmocha.jpeg" alt="Iced Mocha">
-                    <p>Iced Mocha</p>
-                    <div class="description">Chocolate espresso treat served cold</div>
-                </div>
-                <div class="item">
-                    <img src="../images/coldbrew.jpeg" alt="Cold Brew">
-                    <p>Cold Brew Coffee</p>
-                    <div class="description">Smooth coffee steeped cold for 12+ hours</div>
-                </div>
-                <div class="item">
-                    <img src="../images/Iced Caramel Macchiato.jpeg" alt="Iced Caramel Macchiato">
-                    <p>Iced Caramel Macchiato</p>
-                    <div class="description">Vanilla milk with espresso and caramel drizzle</div>
-                </div>
-                <div class="item">
-                    <img src="../images/icedcoffeelemon.jpeg" alt="Iced Coffee Lemonade">
-                    <p>Iced Coffee Lemonade</p>
-                    <div class="description">Tart and refreshing coffee-lemon blend</div>
-                </div>
-                <div class="item">
-                    <img src="../images/Nitro coldbrew.jpeg" alt="Nitro Cold Brew">
-                    <p>Nitro Cold Brew</p>
-                    <div class="description">Creamy cold brew infused with nitrogen</div>
-                </div>
+                <div class="loading">Loading menu items...</div>
             </div>
         </div>
         
-        <!-- RIGHT SIDE: ORDER LIST AND CHECKOUT -->
         <div class="order-container">
-            <!-- ORDER LIST -->
             <div class="order-list">
                 <h2>Your Order</h2>
                 <ul id="order-items"></ul>
             </div>
 
-            <!-- CHECKOUT SECTION -->
             <div class="checkout">
                 <div class="total">Total: <span id="total-price">0</span></div>
                 <button id="proceed-checkout"> 🛒 Proceed to Checkout</button>
@@ -126,7 +42,6 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal -->
     <div id="confirm-modal" class="modal">
         <div class="modal-content">
             <p>Are you sure?</p>

@@ -4,17 +4,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const body = document.body;
 
     function navigateWithAnimation(targetPage, direction) {
-        body.classList.add(direction); // Apply the correct slide animation
+        body.classList.add(direction); 
         setTimeout(() => {
             window.location.href = targetPage;
-        }, 500); // Match duration with CSS animation
+        }, 500);
     }
 
     takeoutBtn.addEventListener("click", function () {
-        navigateWithAnimation("takeoutmenu.html", "slide-right"); // Takeout slides right
+        navigateWithAnimation("takeoutmenu.html", "slide-right"); 
     });
 
     dineinBtn.addEventListener("click", function () {
-        navigateWithAnimation("dinemenu.html", "slide-left"); // Dine-in slides left
+        navigateWithAnimation("dinemenu.html", "slide-left"); 
     });
 });
