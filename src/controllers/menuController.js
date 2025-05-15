@@ -6,7 +6,7 @@ exports.getAllItems = async (req, res) => {
       SELECT COLUMN_NAME 
       FROM INFORMATION_SCHEMA.COLUMNS 
       WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'menu_items'
-    `, [process.env.DB_NAME || 'coffee_shop_db']);
+    `, [process.env.DB_NAME || 'scriptandsip']);
 
     const availableColumns = columns.map(col => col.COLUMN_NAME);
 

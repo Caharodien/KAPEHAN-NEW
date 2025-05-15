@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const orderNumber = generateOrderNumber();
         
         try {
-            console.log('Attempting to save order to database...');
+            console.log('Saving order to database...');
             const response = await fetch(`${API_BASE_URL}/orders`, {
                 method: 'POST',
                 headers: {
@@ -94,19 +94,13 @@ document.addEventListener("DOMContentLoaded", function () {
             const dbData = await response.json();
             
             if (!response.ok) {
-                throw new Error(dbData.message || 'Failed to save order to database');
+                throw new Error(dbData.message || 'Failed to save order');
             }
-
-            console.log('Order saved to database:', dbData);
 
             const completeOrderData = {
                 id: orderNumber,
                 orderType: "Takeout",
-                items: currentOrder.map(item => ({
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity || 1
-                })),
+                items: currentOrder,
                 total: totalAmount,
                 paymentMethod: "Cash",
                 timestamp: new Date().toISOString(),
@@ -118,50 +112,21 @@ document.addEventListener("DOMContentLoaded", function () {
             const priorityNumber = saveOrderToHistory(completeOrderData);
 
             if (priorityNumber) {
-                const receiptData = {
+                localStorage.setItem("receiptData", JSON.stringify({
                     orderNumber: orderNumber,
                     priorityNumber: priorityNumber,
                     orderType: "Takeout",
                     items: currentOrder,
                     total: totalAmount,
-                    paymentMethod: "Cash",
                     timestamp: completeOrderData.timestamp,
-                    dbOrderNumber: dbData.order.order_number,
-                    status: dbData.order.status || 'Pending'
-                };
+                    dbOrderNumber: dbData.order.order_number
+                }));
                 
-                localStorage.setItem("receiptData", JSON.stringify(receiptData));
-                
-                const overviewData = {
-                    priorityNumber: priorityNumber,
-                    orderNumber: orderNumber,
-                    orderType: "Takeout",
-                    items: currentOrder.map(item => ({
-                        name: item.name,
-                        quantity: item.quantity || 1
-                    })),
-                    total: totalAmount,
-                    timestamp: completeOrderData.timestamp,
-                    dbOrderNumber: dbData.order.order_number,
-                    status: dbData.order.status || 'Pending'
-                };
-                localStorage.setItem("latestOrderOverview", JSON.stringify(overviewData));
-
-                if (typeof updateViewOrderList === 'function') {
-                    updateViewOrderList(overviewData);
-                }
-
-                body.classList.add("pull-down-exit");
-                setTimeout(() => {
-                    localStorage.removeItem("currentOrder");
-                    window.location.href = "receipt.html";
-                }, 500);
-            } else {
-                throw new Error("Failed to save to local history");
+                window.location.href = "receipt.html";
             }
         } catch (error) {
             console.error('Error processing order:', error);
-            alert(`Error: ${error.message}\nCheck console for details.`);
+            alert('Error processing order. Please try again.');
         }
     });
     addMoreButton.addEventListener("click", function () {

@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coffee Order</title>
-    <link rel="stylesheet" href="../css/takeoutmenu.css">
+    <link rel="stylesheet" href="../css/dinemenu.css">
 </head>
 <body>
     <header class="header">
         <img src="../images/logo3.0.png" alt="Coffee Logo" class="logo">
-        <h1 class="dine-in-title">Takeout</h1>
+        <h1 class="dine-in-title">Take Out</h1>
         <button id="start-again" class="start-btn">Start again</button>
     </header>
 
@@ -21,9 +21,11 @@
             </div>
             
             <div class="order-grid" id="hot-menu">
+                <div class="loading">Loading menu items...</div>
             </div>
-
+            
             <div class="order-grid" id="cold-menu" style="display: none;">
+                <div class="loading">Loading menu items...</div>
             </div>
         </div>
         
@@ -39,7 +41,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="confirm-modal" class="modal">
         <div class="modal-content">
             <p>Are you sure?</p>
@@ -47,6 +49,6 @@
             <button id="confirm-no" class="no-btn">No</button>
         </div>
     </div>
-    <script src="../js/takeoutmenu.js"></script>
+    <script src="../js/dinemenu.js"></script>
 </body>
 </html>

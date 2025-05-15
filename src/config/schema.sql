@@ -37,21 +37,21 @@ CREATE TABLE IF NOT EXISTS order_items (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO menu_items (name, description, price, category, image_url) VALUES
-('Espresso', 'Strong concentrated coffee, served in small shots', 3.50, 'hot', '../images/Coffee Espresso.jpeg'),
-('Americano', 'Espresso diluted with hot water for a smoother taste', 3.75, 'hot', '../images/Americano Coffee.jpeg'),
-('Cappuccino', 'Espresso with steamed milk and silky foam', 4.25, 'hot', '../images/Cappuccin.jpeg'),
-('Latte', 'Creamy espresso with lots of steamed milk', 4.50, 'hot', '../images/Coffee Latte.jpeg'),
-('Black Coffee', 'Classic drip coffee, bold and uncompromising', 3.25, 'hot', '../images/Black Coffee.jpeg'),
-('Mocha', 'Chocolate-infused espresso with steamed milk', 4.75, 'hot', '../images/Mocha.jpeg'),
-('Flat White', 'Ristretto espresso with velvety microfoam', 4.50, 'hot', '../images/Flatt White.jpeg'),
-('Irish Coffee', 'Spiked coffee with whiskey and whipped cream', 6.50, 'hot', '../images/Irish Coffee.jpeg');
+('Espresso', 'Strong concentrated coffee, served in small shots', 39.00, 'hot', '../images/Coffee Espresso.jpeg'),
+('Americano', 'Espresso diluted with hot water for a smoother taste', 39.00, 'hot', '../images/Americano Coffee.jpeg'),
+('Cappuccino', 'Espresso with steamed milk and silky foam', 39.00, 'hot', '../images/Cappuccin.jpeg'),
+('Latte', 'Creamy espresso with lots of steamed milk', 39.00, 'hot', '../images/Coffee Latte.jpeg'),
+('Black Coffee', 'Classic drip coffee, bold and uncompromising', 39.00, 'hot', '../images/Black Coffee.jpeg'),
+('Mocha', 'Chocolate-infused espresso with steamed milk', 39.00, 'hot', '../images/Mocha.jpeg'),
+('Flat White', 'Ristretto espresso with velvety microfoam', 39.00, 'hot', '../images/Flatt White.jpeg'),
+('Irish Coffee', 'Spiked coffee with whiskey and whipped cream', 39.00, 'hot', '../images/Irish Coffee.jpeg');
 
 INSERT INTO menu_items (name, description, price, category, image_url) VALUES
-('Iced Coffee', 'Chilled coffee served over ice, sweetened to taste', 4.00, 'cold', '../images/iced coffee.jpeg'),
-('Iced Latte', 'Espresso chilled with milk and ice', 4.75, 'cold', '../images/Iced Coffee latte.jpeg'),
-('Iced Americano', 'Refreshing diluted espresso over ice', 4.25, 'cold', '../images/Iced Americano.jpeg'),
-('Iced Mocha', 'Chocolate espresso treat served cold', 5.00, 'cold', '../images/icedmocha.jpeg'),
-('Cold Brew Coffee', 'Smooth coffee steeped cold for 12+ hours', 4.50, 'cold', '../images/coldbrew.jpeg'),
-('Iced Caramel Macchiato', 'Vanilla milk with espresso and caramel drizzle', 5.25, 'cold', '../images/Iced Caramel Macchiato.jpeg'),
-('Iced Coffee Lemonade', 'Tart and refreshing coffee-lemon blend', 4.75, 'cold', '../images/icedcoffeelemon.jpeg'),
-('Nitro Cold Brew', 'Creamy cold brew infused with nitrogen', 5.50, 'cold', '../images/Nitro coldbrew.jpeg');
+('Iced Coffee', 'Chilled coffee served over ice, sweetened to taste', 39.00, 'cold', '../images/iced coffee.jpeg'),
+('Iced Latte', 'Espresso chilled with milk and ice', 39.00, 'cold', '../images/Iced Coffee latte.jpeg'),
+('Iced Americano', 'Refreshing diluted espresso over ice', 39.00, 'cold', '../images/Iced Americano.jpeg'),
+('Iced Mocha', 'Chocolate espresso treat served cold', 39.00, 'cold', '../images/icedmocha.jpeg'),
+('Cold Brew Coffee', 'S mooth coffee steeped cold for 12+ hours', 39.00, 'cold', '../images/coldbrew.jpeg'),
+('Iced Caramel Macchiato', 'Vanilla milk with espresso and caramel drizzle', 39.00, 'cold', '../images/Iced Caramel Macchiato.jpeg'),
+('Iced Coffee Lemonade', 'Tart and refreshing coffee-lemon blend', 39.00, 'cold', '../images/icedcoffeelemon.jpeg'),
+('Nitro Cold Brew', 'Creamy cold brew infused with nitrogen', 39.00, 'cold', '../images/Nitro coldbrew.jpeg');

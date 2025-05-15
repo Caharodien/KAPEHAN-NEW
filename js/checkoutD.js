@@ -165,6 +165,76 @@ document.addEventListener("DOMContentLoaded", function () {
             alert(`Error: ${error.message}\nCheck console for details.`);
         }
     });
+
+    // Update the checkout process to match takeout
+    confirmPaymentButton.addEventListener("click", async function () {
+        if (currentOrder.length === 0) {
+            alert('Please add items to your order first!');
+            return;
+        }
+
+        const orderType = "takeout";
+        const totalAmount = calculatedTotal;
+        const orderNumber = generateOrderNumber();
+        
+        try {
+            console.log('Saving order to database...');
+            const response = await fetch(`${API_BASE_URL}/orders`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    order_type: orderType,
+                    items: currentOrder.map(item => ({
+                        name: item.name,
+                        quantity: item.quantity || 1,
+                        price: item.price
+                    })),
+                    total_amount: totalAmount,
+                    payment_method: 'Cash'
+                })
+            });
+            
+            const dbData = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(dbData.message || 'Failed to save order');
+            }
+
+            const completeOrderData = {
+                id: orderNumber,
+                orderType: "Takeout",
+                items: currentOrder,
+                total: totalAmount,
+                paymentMethod: "Cash",
+                timestamp: new Date().toISOString(),
+                dbId: dbData.order.id,
+                dbOrderNumber: dbData.order.order_number,
+                status: dbData.order.status || 'Pending'
+            };
+
+            const priorityNumber = saveOrderToHistory(completeOrderData);
+
+            if (priorityNumber) {
+                localStorage.setItem("receiptData", JSON.stringify({
+                    orderNumber: orderNumber,
+                    priorityNumber: priorityNumber,
+                    orderType: "Takeout",
+                    items: currentOrder,
+                    total: totalAmount,
+                    timestamp: completeOrderData.timestamp,
+                    dbOrderNumber: dbData.order.order_number
+                }));
+                
+                window.location.href = "receipt.html";
+            }
+        } catch (error) {
+            console.error('Error processing order:', error);
+            alert('Error processing order. Please try again.');
+        }
+    });
+
     addMoreButton.addEventListener("click", function () {
         body.classList.add("pull-down-exit");
         setTimeout(() => {

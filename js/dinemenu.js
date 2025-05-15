@@ -156,17 +156,6 @@ document.addEventListener("DOMContentLoaded", function () {
         
         totalPrice += price;
         updateOrderList();
-        
-        const feedback = document.createElement("div");
-        feedback.className = "order-feedback";
-        feedback.textContent = `+1 ${name}`;
-        document.body.appendChild(feedback);
-        
-        setTimeout(() => {
-            feedback.style.transform = "translateY(-30px)";
-            feedback.style.opacity = "0";
-            setTimeout(() => feedback.remove(), 500);
-        }, 50);
     }
 
     function removeFromOrder(index) {
@@ -184,11 +173,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateOrderList() {
         totalPriceElement.textContent = `₱${totalPrice.toFixed(2)}`;
         
-        totalPriceElement.style.transform = "scale(1.1)";
-        setTimeout(() => {
-            totalPriceElement.style.transform = "scale(1)";
-        }, 200);
-        
         orderItemsElement.innerHTML = "";
         orderList.forEach((item, index) => {
             const li = document.createElement("li");
@@ -197,12 +181,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 <button class="remove-btn" data-index="${index}">❌</button>
             `;
             orderItemsElement.appendChild(li);
-        });
-
-        document.querySelectorAll(".remove-btn").forEach(button => {
-            button.addEventListener("click", function() {
-                removeFromOrder(this.getAttribute("data-index"));
-            });
         });
 
         localStorage.setItem("currentOrder", JSON.stringify(orderList));
